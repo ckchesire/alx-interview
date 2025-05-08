@@ -2,11 +2,17 @@
 """Log parsing script that reads stdin line by line and computes metrics"""
 import sys
 import signal
+import re
 
 total_size = 0
 status_cnts = {}
 valid_codes = ['200', '301', '400', '401', '403', '404', '405', '500']
 line_count = 0
+
+log_pattern = re.compile(
+    r'^(\d{1,3}\.){3}\d{1,3} - \[[^\]]+\] '
+    r'"GET /projects/260 HTTP/1\.1" (\d{3}) (\d+)$'
+)
 
 
 def print_stats():
@@ -27,13 +33,13 @@ signal.signal(signal.SIGINT, signal_handler)
 try:
     for line in sys.stdin:
         line = line.strip()
-        parts = line.split()
+        match = log_pattern.match(line)
 
-        if len(parts) < 7:
+        if not match:
             continue
 
-        status_code = parts[-2]
-        file_size_str = parts[-1]
+        status_code = match.group(2)
+        file_size_str = match.group(3)
 
         try:
             file_size = int(file_size_str)
