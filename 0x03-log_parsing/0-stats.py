@@ -23,15 +23,20 @@ def init_log():
 
 def read_line(line, log_pattern, status_log):
     match = log_pattern.match(line)
-    if match:
-        status_code = match.group(2)
-        file_size = match.group(3)
+    if not match:
+        return False
 
+    status_code = match.group(2)
+    file_size = match.group(3)
+
+    try:
         status_log["file_size"] += int(file_size)
 
-        if status_code.isdecimal():
+        if status_code in status_log["code_list"]:
             status_log["code_list"][status_code] += 1
-    return status_log
+    except ValueError:
+        return False
+    return True
 
 
 def main():
@@ -43,15 +48,18 @@ def main():
     status_log = init_log()
     line_count = 0
 
-    for line in sys.stdin:
-        line = line.strip()
+    try:
+        for line in sys.stdin:
+            line = line.strip()
+            valid_line = read_line(line, log_pattern, status_log)
 
-        line_count = line_count + 1
+            if valid_line:
+                line_count = line_count + 1
+                if line_count % 10 == 0:
+                    print_stats(status_log)
 
-        logs = read_line(line, log_pattern, status_log)
-
-        if line_count % 10 == 0:
-            print_stats(logs)
+    except KeyboardInterrupt:
+        print_stats(status_log)
 
 
 if __name__ == "__main__":
