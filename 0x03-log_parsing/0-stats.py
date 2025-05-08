@@ -6,48 +6,53 @@ import signal
 import re
 
 
-def print_stats():
+def print_stats(status_log):
     """Prints total file size and status code counts"""
-    print("File size: {}".format(total_size))
-    for code in sorted(status_counts):
-        print("{}: {}".format(code, status_counts[code]))
+    print("File size: {}".format(status_log['file_size']))
+    for code in sorted(status_log['code_list']):
+        print("{}: {}".format(code, status_log['code_list'][code]))
 
 
-if __name__ == "__main__":
-    total_size = 0
-    status_counts = {}
+def init_log():
     valid_codes = ['200', '301', '400', '401', '403', '404', '405', '500']
-    line_count = 0
+    status_log = {
+        "file_size": 0,
+        "code_list": {str(code): 0 for code in valid_codes}}
+    return status_log
 
+
+def read_line(line, log_pattern, status_log):
+    match = log_pattern.match(line)
+    if match:
+        status_code = match.group(2)
+        file_size = match.group(3)
+
+        status_log["file_size"] += int(file_size)
+
+        if status_code.isdecimal():
+            status_log["code_list"][status_code] += 1
+    return status_log
+
+
+def main():
     log_pattern = re.compile(
         r'^(\d{1,3}\.){3}\d{1,3} - \[[^\]]+\] '
         r'"GET /projects/260 HTTP/1\.1" (\d{3}) (\d+)$'
     )
 
-    try:
-        for line in sys.stdin:
-            line = line.strip()
-            match = log_pattern.match(line)
-            if not match:
-                continue
+    status_log = init_log()
+    line_count = 0
 
-            status_code = match.group(2)
-            file_size_str = match.group(3)
+    for line in sys.stdin:
+        line = line.strip()
 
-            try:
-                file_size = int(file_size_str)
-                total_size += file_size
+        line_count = line_count + 1
 
-                if status_code in valid_codes:
-                    status_counts[status_code] = status_counts.get(
-                        status_code, 0) + 1
-            except (ValueError, IndexError):
-                continue
+        logs = read_line(line, log_pattern, status_log)
 
-            line_count += 1
-            if line_count % 10 == 0:
-                print_stats()
+        if line_count % 10 == 0:
+            print_stats(logs)
 
-    except KeyboardInterrupt:
-        print_stats()
-        pass
+
+if __name__ == "__main__":
+    main()
