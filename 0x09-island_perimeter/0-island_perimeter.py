@@ -12,22 +12,20 @@ def nearest_neighbours(grid, i, j):
          i (int): integer value representing row number.
          j (int): integer value representing column number.
 
-       Return:
+       Returns:
          counter (int): return counter of the neighbouring land setions.
     """
     counter = 0
 
-    if (i > 0 and grid[i-1][j]):
+    if i > 0 and grid[i-1][j]:
         counter += 1
+    if i < len(grid) - 1 and grid[i+1][j]:
+        counter += 1
+    if j > 0 and grid[i][j-1]:
+        counter += 1
+    if j < len(grid[0]) - 1 and grid[i][j+1]:
+        counter +=1
 
-    if (j > 0 and grid[i][j+1]):
-        counter += 1
-
-    if (i > 0 and grid[i+1][j]):
-        counter += 1
-
-    if (j > 0 and grid[i][j-1]):
-        counter += 1
     return counter
 
 
@@ -37,7 +35,7 @@ def island_perimeter(grid):
        Args:
          grid(int): 2D matrix representation of the island.
 
-       Return:
+       Returns:
          perimeter(int): returns the perimeter of the island.
     """
     row = len(grid)
