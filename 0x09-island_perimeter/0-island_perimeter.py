@@ -1,4 +1,4 @@
-#!usr/bin/python3
+#!/usr/bin/python3
 """
 Module to compute and return the perimeter of an island.
 """
