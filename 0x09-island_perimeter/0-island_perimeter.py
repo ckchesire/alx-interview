@@ -2,10 +2,9 @@
 """
 Module to compute and return the perimeter of an island.
 """
-from typing import List
 
 
-def nearest_neighbours(grid: List[List[int]], i: int, j: int) -> int:
+def nearest_neighbours(grid, i, j):
     """Method to check the neighbouring land sections part of the island.
 
        Args:
@@ -32,7 +31,7 @@ def nearest_neighbours(grid: List[List[int]], i: int, j: int) -> int:
     return counter
 
 
-def island_perimeter(grid: List[List[int]]) -> int:
+def island_perimeter(grid):
     """Method to calculate the island perimeter based on the grid.
 
        Args:
