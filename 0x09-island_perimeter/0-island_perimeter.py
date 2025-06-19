@@ -24,7 +24,7 @@ def nearest_neighbours(grid, i, j):
     if j > 0 and grid[i][j-1]:
         counter += 1
     if j < len(grid[0]) - 1 and grid[i][j+1]:
-        counter +=1
+        counter += 1
 
     return counter
 
